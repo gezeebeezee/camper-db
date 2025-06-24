@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add Camper</title>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-200 min-h-screen transition-colors duration-300 flex flex-col">
+
+  <header class="p-6 bg-gray-100 dark:bg-gray-800 shadow-md flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Add Camper</h1>
+    <a href="{{ url_for('index') }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">← Back</a>
+  </header>
+
+  <main class="flex-grow p-6">
+    <form action="{{ url_for('add_camper') }}" method="POST"
+          class="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md p-8 space-y-6 w-full max-w-full mx-auto">
+
+      <div>
+        <label for="name" class="block text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Name</label>
+        <input type="text" name="name" id="name" required
+               class="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200" />
+      </div>
+
+      <div>
+        <label for="disability" class="block text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Disability</label>
+        <textarea name="disability" id="disability" rows="4"
+                  class="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 resize-y"></textarea>
+      </div>
+
+      <div>
+        <label for="medications" class="block text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Medications</label>
+        <textarea name="medications" id="medications" rows="4"
+                  class="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 resize-y"></textarea>
+      </div>
+
+      <div>
+        <label for="diet" class="block text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Special Diet</label>
+        <textarea name="diet" id="diet" rows="4"
+                  class="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 resize-y"></textarea>
+      </div>
+
+      <div>
+        <label for="notes" class="block text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Notes</label>
+        <textarea name="notes" id="notes" rows="4"
+                  class="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 resize-y"></textarea>
+      </div>
+
+      <button type="submit"
+              class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded transition-colors duration-300">
+        Add Camper
+      </button>
+    </form>
+  </main>
+
+</body>
+</html>
