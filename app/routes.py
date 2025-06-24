@@ -2,6 +2,7 @@ from flask import render_template, redirect, url_for, request, send_from_directo
 from app import app, db
 from app.models import Camper
 import qrcode
+from PIL import Image, ImageDraw, ImageFont
 import os
 import secrets
 
@@ -51,8 +52,53 @@ def add_camper():
 
     # Save QR code image to static/qrcodes folder
     path = os.path.join(current_app.root_path, 'static', 'qrcodes', f'{qr_token}.png')
-    img = qrcode.make(qr_url)
-    img.save(path)
+    qr_img = qrcode.make(qr_url)
+    # img.save(path)
+
+    # Convert to RGB to allow pasting camper name
+    qr_img = qr_img.convert("RGB")
+
+    # Dimensions
+    qr_width, qr_height = qr_img.size
+    text = camper.name
+
+    # Load a nicer font for camper name or fall back to default font
+    try:
+        font = ImageFont.truetype("arial.ttf", 20)
+
+    except:
+        font = ImageFont.load_default()
+
+    # Get text size using textbox
+    dummy_img = Image.new("RGB", (qr_width, 1))
+    draw_dummy = ImageDraw.Draw(dummy_img)
+    bbox = draw_dummy.textbbox((0, 0), text, font=font)
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+
+    # Set spacing/padding
+    top_padding = 0
+    text_padding = 12
+    bottom_padding = 55
+
+    # Final image height
+    total_height = qr_height + text_padding + text_height + bottom_padding
+
+    # Create new blank image
+    final_img = Image.new("RGB", (qr_width, total_height), "white")
+    draw = ImageDraw.Draw(final_img)
+
+    # Paste QR code
+    final_img.paste(qr_img, (0, 0))
+
+    # Draw text centered below QR
+    text_x = (qr_width - text_width) // 2
+    text_y = qr_height + text_padding
+    draw.text((text_x, text_y), text, fill="black", font=font)
+
+    # Save final image
+    final_img.save(path)
+
 
     return redirect(url_for('index'))
 
