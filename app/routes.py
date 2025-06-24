@@ -38,7 +38,16 @@ def add_camper():
     db.session.commit()
 
     # Generate QR code URL for camper details
-    qr_url = request.url_root.rstrip('/') + url_for('camper_detail', token=qr_token)
+    # qr_url = request.url_root.rstrip('/') + url_for('camper_detail', token=qr_token)
+
+    base_url = os.getenv("PUBLIC_BASE_URL")
+
+    if not base_url:
+        # Fallback to request.url_root (automatically includes http:// or https://)
+        base_url = request.url_root.rstrip('/')
+
+    qr_url = f"{base_url}{url_for('camper_detail', token=camper.qr_token)}"
+
 
     # Save QR code image to static/qrcodes folder
     path = os.path.join(current_app.root_path, 'static', 'qrcodes', f'{qr_token}.png')
