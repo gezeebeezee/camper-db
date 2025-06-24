@@ -1,4 +1,5 @@
 from flask import render_template, redirect, url_for, request, send_from_directory, current_app
+from flask_login import login_required, current_user, login_user, logout_user
 from app import app, db
 from app.models import Camper
 import qrcode
@@ -8,6 +9,7 @@ import secrets
 
 
 @app.route('/')
+@login_required
 def index():
     campers = Camper.query.all()
     return render_template('index.html', campers=campers)
@@ -19,6 +21,7 @@ def camper_detail(token):
 
 
 @app.route('/add_camper', methods=['GET', 'POST'])
+@login_required
 def add_camper():
     if request.method == 'GET':
         return render_template('add_camper.html')
@@ -108,6 +111,7 @@ def qrcode_image(token):
     return send_from_directory('static/qrcodes', f'{token}.png')
 
 @app.route('/edit_camper/<int:id>', methods=['GET', 'POST'])
+@login_required
 def edit_camper(id):
     camper = Camper.query.get_or_404(id)
     if request.method == 'POST':
@@ -120,6 +124,7 @@ def edit_camper(id):
     return render_template('edit_camper.html', camper=camper)
 
 @app.route('/delete_camper/<int:id>', methods=['POST'])
+@login_required
 def delete_camper(id):
     camper = Camper.query.get_or_404(id)
 
