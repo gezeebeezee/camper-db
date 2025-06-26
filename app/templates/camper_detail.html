@@ -42,7 +42,7 @@
 
       <div class="pt-6 text-center">
         <img src="{{ url_for('static', filename='qrcodes/' + camper.qr_token + '.png') }}" alt="QR Code"
-             class="w-40 h-40 max-w-xs mx-auto border border-gray-300 dark:border-gray-700 rounded-lg shadow"/>
+             class="w-auto max-w-xs max-h-40 mx-auto border border-gray-300 dark:border-gray-700 rounded-lg shadow"/>
         <a href="{{ url_for('static', filename='qrcodes/' + camper.qr_token + '.png') }}" download
            class="mt-4 inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition-colors duration-300">
           Download QR Code
