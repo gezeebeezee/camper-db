@@ -25,10 +25,14 @@
   <!-- Header -->
   <header class="p-6 bg-gray-100 dark:bg-gray-800 shadow-md flex justify-between items-center transition-colors duration-300">
     <h1 class="text-3xl font-extrabold tracking-tight">Camp DB</h1>
-    <div class="flex justify-end mb-4">
-      <a href="{{ url_for('add_camper') }}"
+    <div class="flex items-center space-x-3">
+      <a href="{{ url_for('main.add_camper') }}"
         class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm shadow transition-colors duration-300">
         + Add Camper
+      </a>
+      <a href="{{ url_for('main.logout') }}"
+        class="bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded text-sm shadow transition-colors duration-300">
+        Logout
       </a>
     </div>
   </header>
@@ -37,7 +41,7 @@
   <main class="flex-grow p-6 max-w-4xl mx-auto">
     <h2 class="text-2xl font-semibold mb-6">Campers</h2>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
       {% for camper in campers %}
       <div class="bg-gray-100 dark:bg-gray-800 rounded-lg shadow p-5 flex flex-col justify-between text-gray-900 dark:text-gray-200 transition-colors duration-300">
         <div>
@@ -46,25 +50,26 @@
           <p><strong>Medications:</strong> {{ camper.medications or 'N/A' }}</p>
           <p><strong>Diet:</strong> {{ camper.diet or 'N/A' }}</p>
         </div>
-          <div class="mt-4 flex justify-between items-center">
-    <a href="{{ url_for('camper_detail', token=camper.qr_token) }}" 
-      class="text-indigo-600 dark:text-indigo-400 hover:underline">
-      Details
-    </a>
-    <div class="space-x-2">
-      <a href="{{ url_for('edit_camper', id=camper.id) }}" 
-        class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm text-white transition-colors duration-300">
-        Edit
-      </a>
-      <form method="POST" action="{{ url_for('delete_camper', id=camper.id) }}" style="display:inline;" onsubmit="return confirm('Delete this camper?');">
-        <button type="submit" 
-                class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm text-white transition-colors duration-300">
-          Delete
-        </button>
-      </form>
-    </div>
-  </div>
-
+      <div class="mt-4 flex justify-between items-center gap-4">
+        <div>
+          <a href="{{ url_for('main.camper_detail', token=camper.qr_token) }}" 
+            class="text-indigo-600 dark:text-indigo-400 hover:underline">
+            Details
+          </a>
+        </div>
+        <div class="flex space-x-2">
+          <a href="{{ url_for('main.edit_camper', id=camper.id) }}" 
+            class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm text-white transition-colors duration-300">
+            Edit
+          </a>
+          <form method="POST" action="{{ url_for('main.delete_camper', id=camper.id) }}" style="display:inline;" onsubmit="return confirm('Delete this camper?');">
+            <button type="submit" 
+                    class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm text-white transition-colors duration-300">
+              Delete
+            </button>
+          </form>
+        </div>
+      </div>
       </div>
       {% else %}
       <p>No campers found.</p>

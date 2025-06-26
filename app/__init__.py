@@ -1,15 +1,29 @@
-from dotenv import load_dotenv
-load_dotenv()
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from dotenv import load_dotenv
 
+load_dotenv()
 
+db = SQLAlchemy()
+login_manager = LoginManager()
+login_manager.login_view= 'main.login'
 
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object('config.Config')
 
-app = Flask(__name__)
-app.config.from_object('config.Config')
+    db.init_app(app)
+    login_manager.init_app(app)
+    login_manager.login_view = 'main.login'
 
-db = SQLAlchemy(app)
+    from . import models
+    from .routes import main as main_bp
+    app.register_blueprint(main_bp)
 
-from app import routes, models
+    @login_manager.user_loader
+    def load_user(user_id):
+        return models.User.get(user_id)
+
+    return app
