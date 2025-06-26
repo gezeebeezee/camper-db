@@ -12,15 +12,15 @@ class Camper(db.Model):
     qr_token = db.Column(db.String(100), unique=True, nullable=False)
 
 class User(UserMixin):
-    def __init__(self, id):
-        self.id = id
+    def __init__(self, username):
+        self.id = username
 
     @staticmethod
-    def get(user_id):
-        if user_id in USER_DATA:
-            return User(user_id)
+    def get(username):
+        if username in USER_DATA:
+            return User(username)
         return None
 
 USER_DATA = {
-    "admin": {"password": "trickypassword"}
+    "admin": {"password": "adminpass"}
 }

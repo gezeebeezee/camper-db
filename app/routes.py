@@ -6,15 +6,9 @@ import os, secrets, qrcode
 from PIL import Image, ImageDraw, ImageFont
 from . import db
 
-bp = Blueprint('main', __name__)
+main = Blueprint('main', __name__)
 
-@bp.route('/')
-@login_required
-def index():
-    campers = Camper.query.all()
-    return render_template('index.html', campers=campers)
-
-@bp.route('/login', methods=['GET', 'POST'])
+@main.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -26,18 +20,24 @@ def login():
         return render_template('login.html', error='Invalid credentials')
     return render_template('login.html')
 
-@bp.route('/logout')
+@main.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('main.login'))
 
-@bp.route('/camper/<string:token>')
+@main.route('/')
+@login_required
+def index():
+    campers = Camper.query.all()
+    return render_template('index.html', campers=campers)
+
+@main.route('/camper/<string:token>')
 def camper_detail(token):
     camper = Camper.query.filter_by(qr_token=token).first_or_404()
     return render_template('camper_detail.html', camper=camper)
 
-@bp.route('/add_camper', methods=['GET', 'POST'])
+@main.route('/add_camper', methods=['GET', 'POST'])
 @login_required
 def add_camper():
     if request.method == 'GET':
@@ -83,6 +83,44 @@ def add_camper():
 
     return redirect(url_for('main.index'))
 
-@bp.route('/qrcode/<string:token>')
+@main.route('/edit_camper/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_camper(id):
+    camper = Camper.query.get_or_404(id)
+    if request.method == 'POST':
+        camper.name = request.form['name']
+        camper.disability = request.form['disability']
+        camper.medications = request.form['medications']
+        camper.diet = request.form['diet']
+        camper.notes = request.form['notes']
+        db.session.commit()
+        return redirect(url_for('main.index'))
+    return render_template('edit_camper.html', camper=camper)
+
+
+@main.route('/qrcode/<string:token>')
 def qrcode_image(token):
     return send_from_directory('static/qrcodes', f'{token}.png')
+
+@main.route('/delete_camper/<int:id>', methods=['POST'])
+@login_required
+def delete_camper(id):
+    camper = Camper.query.get_or_404(id)
+
+    # Remove associated QR code image
+    qr_path = os.path.join(current_app.root_path, 'static', 'qrcodes', f'{camper.qr_token}.png')
+    try:
+        os.remove(qr_path)
+    except FileNotFoundError:
+        pass
+
+    db.session.delete(camper)
+    db.session.commit()
+    return redirect(url_for('main.index'))
+
+
+@main.route('/nametag/<token>')
+def camper_nametag(token):
+    camper = Camper.query.filter_by(qr_token=token).first_or_404()
+    return render_template('nametag.html', camper=camper)
+
