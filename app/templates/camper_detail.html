@@ -13,7 +13,7 @@
 
   <header class="p-6 bg-gray-100 dark:bg-gray-800 shadow-md flex justify-between items-center">
     <h1 class="text-2xl font-bold">Camper Details</h1>
-    <a href="{{ url_for('index') }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">← Back</a>
+    <a href="{{ url_for('main.index') }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">← Back</a>
   </header>
 
   <main class="flex-grow p-6 flex items-center justify-center">
@@ -42,7 +42,7 @@
 
       <div class="pt-6 text-center">
         <img src="{{ url_for('static', filename='qrcodes/' + camper.qr_token + '.png') }}" alt="QR Code"
-             class="mx-auto w-40 h-40 rounded border border-gray-400 dark:border-gray-600" />
+             class="w-auto max-w-xs max-h-40 mx-auto border border-gray-300 dark:border-gray-700 rounded-lg shadow"/>
         <a href="{{ url_for('static', filename='qrcodes/' + camper.qr_token + '.png') }}" download
            class="mt-4 inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition-colors duration-300">
           Download QR Code

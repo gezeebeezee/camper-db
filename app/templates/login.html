@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Staff Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex items-center justify-center h-screen bg-gray-100">
+  <form method="POST" class="bg-white shadow-lg rounded p-8 w-full max-w-md space-y-4">
+    <h2 class="text-xl font-bold">Camp Staff Login</h2>
+    {% if error %}
+      <p class="text-red-500">{{ error }}</p>
+    {% endif %}
+    <input type="text" name="username" placeholder="Username" class="w-full border px-3 py-2 rounded" required />
+    <input type="password" name="password" placeholder="Password" class="w-full border px-3 py-2 rounded" required />
+    <button type="submit" class="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700">Login</button>
+  </form>
+</body>
+</html>
