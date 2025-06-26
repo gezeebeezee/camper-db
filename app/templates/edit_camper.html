@@ -13,11 +13,11 @@
 
   <header class="p-6 bg-gray-100 dark:bg-gray-800 shadow-md flex justify-between items-center">
     <h1 class="text-2xl font-bold">Edit Camper</h1>
-    <a href="{{ url_for('index') }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">← Back</a>
+    <a href="{{ url_for('main.index') }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">← Back</a>
   </header>
 
   <main class="flex-grow p-6">
-    <form action="{{ url_for('edit_camper', id=camper.id) }}" method="POST"
+    <form action="{{ url_for('main.edit_camper', id=camper.id) }}" method="POST"
           class="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md p-8 space-y-6 w-full max-w-full mx-auto">
 
       <div>
