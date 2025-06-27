@@ -11,15 +11,10 @@ class Camper(db.Model):
     notes = db.Column(db.Text)
     qr_token = db.Column(db.String(100), unique=True, nullable=False)
 
-class User(UserMixin):
-    def __init__(self, username):
-        self.id = username
-
-    @staticmethod
-    def get(username):
-        if username in USER_DATA:
-            return User(username)
-        return None
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
 
 USER_DATA = {
     "admin": {"password": "adminpass"}
