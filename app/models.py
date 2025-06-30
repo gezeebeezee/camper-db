@@ -1,6 +1,7 @@
 
 from . import db
 from flask_login import UserMixin
+from werkzeug.security import check_password_hash, generate_password_hash
 
 class Camper(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -11,16 +12,22 @@ class Camper(db.Model):
     notes = db.Column(db.Text)
     qr_token = db.Column(db.String(100), unique=True, nullable=False)
 
-class User(UserMixin):
-    def __init__(self, username):
-        self.id = username
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
 
-    @staticmethod
-    def get(username):
-        if username in USER_DATA:
-            return User(username)
-        return None
+    @property
+    def password(self):
+        raise AttributeError("Password is write-only.")
 
-USER_DATA = {
-    "admin": {"password": "adminpass"}
-}
+    @password.setter
+    def password(self, plain_password):
+        self.password_hash = generate_password_hash(plain_password)
+
+    def check_password(self, plain_password):
+        return check_password_hash(self.password_hash, plain_password)
+
+# USER_DATA = {
+#     "admin": {"password": "adminpass"}
+# }
