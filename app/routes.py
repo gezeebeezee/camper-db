@@ -1,7 +1,7 @@
 
 from flask import Blueprint, render_template, redirect, url_for, request, send_from_directory, current_app
 from flask_login import login_required, current_user, login_user, logout_user
-from .models import Camper, User, USER_DATA
+from .models import Camper, User
 import os, secrets, qrcode
 from PIL import Image, ImageDraw, ImageFont
 from . import db
@@ -13,10 +13,12 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = USER_DATA.get(username)
-        if user and user['password'] == password:
-            login_user(User(username))
+
+        user = User.query.filter_by(username=username).first()
+        if user and user.check_password(password):
+            login_user(user)
             return redirect(url_for('main.index'))
+
         return render_template('login.html', error='Invalid credentials')
     return render_template('login.html')
 
