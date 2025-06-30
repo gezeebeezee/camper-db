@@ -1,12 +1,10 @@
 
 from flask import Blueprint, render_template, redirect, url_for, request, send_from_directory, current_app
 from flask_login import login_required, current_user, login_user, logout_user
-from .models import Camper, User, USER_DATA
+from .models import Camper, User
 import os, secrets, qrcode
 from PIL import Image, ImageDraw, ImageFont
 from . import db
-from app.auth_utils import verify_password
-from app.models import User
 
 main = Blueprint('main', __name__)
 
@@ -17,7 +15,7 @@ def login():
         password = request.form['password']
 
         user = User.query.filter_by(username=username).first()
-        if user and verify_password(user.password_hash, password):
+        if user and user.check_password(password):
             login_user(user)
             return redirect(url_for('main.index'))
 
