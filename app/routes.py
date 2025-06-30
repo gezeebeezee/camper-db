@@ -31,12 +31,20 @@ def logout():
 @main.route('/')
 @login_required
 def index():
-    campers = Camper.query.all()
+    if current_user.team_number:
+        campers = Camper.query.filter_by(team_number=current_user.team_number).all()
+    else:
+        campers = Camper.query.all()  # Admins or unassigned users
     return render_template('index.html', campers=campers)
 
 @main.route('/camper/<string:token>')
+@login_required
 def camper_detail(token):
     camper = Camper.query.filter_by(qr_token=token).first_or_404()
+
+    if current_user.team_number is not None and camper.team_number != current_user.team_number:
+        return "Unauthorized access", 403
+
     return render_template('camper_detail.html', camper=camper)
 
 @main.route('/add_camper', methods=['GET', 'POST'])

@@ -6,6 +6,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 class Camper(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
+    team_number = db.Column(db.Integer, nullable=True)
     disability = db.Column(db.String(150))
     medications = db.Column(db.String(250))
     diet = db.Column(db.String(150))
@@ -14,6 +15,7 @@ class Camper(db.Model):
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    team_number = db.Column(db.Integer, nullable=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
 
