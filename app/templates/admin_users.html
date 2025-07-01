@@ -1,0 +1,59 @@
+<!-- templates/admin_users.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Manage Users</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-200 min-h-screen p-8">
+  <h1 class="text-3xl font-bold mb-6">User Management</h1>
+
+  <div class="flex justify-between items-center mb-4">
+    <a href="{{ url_for('main.index') }}" class="text-indigo-400 hover:underline">← Back to Campers</a>
+    <a href="{{ url_for('auth.register') }}"
+       class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm shadow transition-colors duration-300">
+      + Create New User
+    </a>
+  </div>
+
+  <table class="w-full table-auto bg-gray-800 rounded shadow">
+    <thead class="bg-gray-700">
+      <tr>
+        <th class="text-left p-3">Username</th>
+        <th class="text-left p-3">Team #</th>
+        <th class="text-right p-3">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr class="border-t border-gray-600">
+        <td class="p-3">{{ user.username }}</td>
+        <td class="p-3">{{ user.team_number if user.team_number is not none else 'Admin' }}</td>
+        <td class="p-3 text-right space-x-2">
+          {% if user.id != current_user.id %}
+            <a href="{{ url_for('auth.edit_user', user_id=user.id) }}"
+               class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+              Edit
+            </a>
+            <form method="POST" action="{{ url_for('auth.delete_user', user_id=user.id) }}"
+                  style="display:inline;" onsubmit="return confirm('Delete this user?');">
+              <button type="submit"
+                      class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                Delete
+              </button>
+            </form>
+          {% else %}
+            <span class="text-gray-400 text-sm">Current User</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="3" class="p-3 text-center text-gray-400">No users found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
