@@ -11,7 +11,7 @@ main = Blueprint('main', __name__)
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.form['username'].strip().lower()
         password = request.form['password']
 
         user = User.query.filter_by(username=username).first()
@@ -54,13 +54,21 @@ def add_camper():
         return render_template('add_camper.html')
 
     name = request.form['name']
+    team_number = request.form['team_number']
     disability = request.form['disability']
     medications = request.form['medications']
     diet = request.form['diet']
     notes = request.form['notes']
     qr_token = secrets.token_urlsafe(8)
 
-    camper = Camper(name=name, disability=disability, medications=medications, diet=diet, notes=notes, qr_token=qr_token)
+    camper = Camper(name=name, 
+                    team_number=int(team_number), 
+                    disability=disability, 
+                    medications=medications, 
+                    diet=diet, 
+                    notes=notes, 
+                    qr_token=qr_token)
+    
     db.session.add(camper)
     db.session.commit()
 
