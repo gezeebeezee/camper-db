@@ -126,6 +126,10 @@ def edit_camper(id):
     camper = Camper.query.get_or_404(id)
     if request.method == 'POST':
         camper.name = request.form['name']
+        
+        if current_user.team_number is None:
+            camper.team_number = int(request.form['team_number'])
+
         camper.disability = request.form['disability']
         camper.medications = request.form['medications']
         camper.diet = request.form['diet']
