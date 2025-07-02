@@ -66,7 +66,7 @@ def delete_user(user_id):
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.form['username'].strip().lower()
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
 
