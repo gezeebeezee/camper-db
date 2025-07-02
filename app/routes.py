@@ -31,11 +31,30 @@ def logout():
 @main.route('/')
 @login_required
 def index():
-    if current_user.team_number:
-        campers = Camper.query.filter_by(team_number=current_user.team_number).all()
-    else:
-        campers = Camper.query.all()  # Admins or unassigned users
-    return render_template('index.html', campers=campers)
+    search_query = request.args.get('search', '').strip()
+    team_filter = request.args.get('team_filter', '').strip()
+
+    campers_query = Camper.query
+
+    # Regular users only see their team
+    if current_user.team_number is not None:
+        campers_query = campers_query.filter_by(team_number=current_user.team_number)
+    # Admin users can optionally filter by team
+    elif team_filter.isdigit():
+        campers_query = campers_query.filter_by(team_number=int(team_filter))
+
+    # Apply name search (for both admin and regular users)
+    if search_query:
+        campers_query = campers_query.filter(Camper.name.ilike(f"%{search_query}%"))
+
+    campers = campers_query.all()
+
+    # Admin: provide all team numbers for dropdown
+    team_numbers = []
+    if current_user.team_number is None:
+        team_numbers = sorted({c.team_number for c in Camper.query.filter(Camper.team_number != None).all()})
+
+    return render_template('index.html', campers=campers, team_numbers=team_numbers)
 
 @main.route('/camper/<string:token>')
 @login_required

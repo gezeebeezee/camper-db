@@ -81,6 +81,41 @@
   <!-- Main Content -->
   <main class="flex-grow p-6 w-full max-w-screen-xl mx-auto">
     <h2 class="text-2xl font-semibold mb-6">Campers</h2>
+    <form id="filterForm" method="GET" action="{{ url_for('main.index') }}"
+          class="mb-6 flex flex-col sm:flex-row sm:justify-end sm:items-center gap-2 sm:gap-3">
+
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+        <input type="text" name="search" value="{{ request.args.get('search', '') }}"
+              placeholder="Search campers..."
+              class="sm:w-64 p-2 rounded bg-gray-900 text-gray-200 border border-gray-700 placeholder-gray-400 text-sm" />
+
+        {% if current_user.team_number is none %}
+        <select name="team_filter"
+                class="p-2 rounded bg-gray-900 text-gray-200 border border-gray-700 text-sm"
+                onchange="document.getElementById('filterForm').submit()">
+          <option value="">All Teams</option>
+          {% for num in team_numbers %}
+            <option value="{{ num }}" {% if request.args.get('team_filter') == num|string %}selected{% endif %}>
+              Team {{ num }}
+            </option>
+          {% endfor %}
+        </select>
+        {% endif %}
+
+        <button type="submit"
+                class="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white text-sm">
+          Search
+        </button>
+
+        {% if request.args.get('search') or request.args.get('team_filter') %}
+        <a href="{{ url_for('main.index') }}"
+          class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 text-white text-sm">
+          Clear
+        </a>
+        {% endif %}
+      </div>
+    </form>
+
 
   <div class="grid gap-6 grid-cols-[repeat(auto-fit,minmax(320px,1fr))]">
     {% for camper in campers %}
@@ -121,7 +156,7 @@
 
   <!-- Footer -->
   <footer class="p-6 bg-gray-100 dark:bg-gray-800 text-center text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
-    &copy; 2025 Camp DB — Built with ❤️ and Tailwind CSS
+    &copy; 2025 Camp DB — Built by Kevin Le with ❤️ and Tailwind CSS
   </footer>
 
   <!-- Dark Mode Toggle Script -->
