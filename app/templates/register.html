@@ -1,34 +1,63 @@
-<!-- templates/register.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 flex items-center justify-center min-h-screen">
-  <div class="bg-gray-800 text-gray-200 shadow-md rounded px-8 py-6 w-full max-w-sm">
+<body class="bg-gray-900 text-gray-200 min-h-screen flex items-center justify-center p-4">
+  <div class="bg-gray-800 rounded-lg shadow p-6 w-full max-w-sm">
     <h2 class="text-2xl font-bold mb-4 text-center">Create Account</h2>
+
     {% if error %}
-      <p class="text-red-600 mb-2">{{ error }}</p>
+      <p class="text-red-600 mb-4 text-sm text-center">{{ error }}</p>
     {% endif %}
-    <form method="POST">
-      <label class="block mb-2">
-        <span>Username</span>
-        <input name="username" type="text" required class="w-full mt-1 p-2 border rounded text-gray-900" />
+
+    <form method="POST" class="space-y-4">
+      <!-- Username -->
+      <label class="block">
+        <span class="text-sm">Username</span>
+        <input name="username" type="text" required
+               class="w-full mt-1 p-2 rounded text-gray-200 bg-gray-900 border border-gray-700 placeholder-gray-200"
+               placeholder="Enter username" />
       </label>
-      <label class="block mb-2">
-        <span>Password</span>
-        <input name="password" type="password" required class="w-full mt-1 p-2 border rounded text-gray-900" />
+
+      <!-- Team Number -->
+      <label class="block">
+        <span class="text-sm">Team Number</span>
+        <input name="team_number" type="number" required min="1"
+               class="w-full mt-1 p-2 rounded text-gray-200 bg-gray-900 border border-gray-700 placeholder-gray-200"
+               placeholder="e.g., 5" />
+        <p class="text-xs text-gray-400 mt-1">This field is required. Leave blank for admin access is disabled.</p>
       </label>
-      <label class="block mb-4">
-        <span>Confirm Password</span>
-        <input name="confirm" type="password" required class="w-full mt-1 p-2 border rounded text-gray-900" />
+
+      <!-- Password -->
+      <label class="block">
+        <span class="text-sm">Password</span>
+        <input name="password" type="password" required
+               class="w-full mt-1 p-2 rounded text-gray-200 bg-gray-900 border border-gray-700 placeholder-gray-200"
+               placeholder="Enter password" />
       </label>
-      <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Register</button>
+
+      <!-- Confirm Password -->
+      <label class="block">
+        <span class="text-sm">Confirm Password</span>
+        <input name="confirm" type="password" required
+               class="w-full mt-1 p-2 rounded text-gray-200 bg-gray-900 border border-gray-700 placeholder-gray-200"
+               placeholder="Re-enter password" />
+      </label>
+
+      <!-- Submit -->
+      <button type="submit"
+              class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded transition">
+        Register
+      </button>
     </form>
-    <p class="text-sm mt-4 text-center">
-      Already have an account? <a href="{{ url_for('main.login') }}" class="text-blue-600 hover:underline">Login</a>
+
+    <p class="text-sm text-center mt-4">
+      Already have an account?
+      <a href="{{ url_for('main.login') }}" class="text-indigo-400 hover:underline">Login</a>
     </p>
   </div>
 </body>

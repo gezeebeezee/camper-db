@@ -11,7 +11,7 @@ main = Blueprint('main', __name__)
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.form['username'].strip().lower()
         password = request.form['password']
 
         user = User.query.filter_by(username=username).first()
@@ -31,12 +31,39 @@ def logout():
 @main.route('/')
 @login_required
 def index():
-    campers = Camper.query.all()
-    return render_template('index.html', campers=campers)
+    search_query = request.args.get('search', '').strip()
+    team_filter = request.args.get('team_filter', '').strip()
+
+    campers_query = Camper.query
+
+    # Regular users only see their team
+    if current_user.team_number is not None:
+        campers_query = campers_query.filter_by(team_number=current_user.team_number)
+    # Admin users can optionally filter by team
+    elif team_filter.isdigit():
+        campers_query = campers_query.filter_by(team_number=int(team_filter))
+
+    # Apply name search (for both admin and regular users)
+    if search_query:
+        campers_query = campers_query.filter(Camper.name.ilike(f"%{search_query}%"))
+
+    campers = campers_query.all()
+
+    # Admin: provide all team numbers for dropdown
+    team_numbers = []
+    if current_user.team_number is None:
+        team_numbers = sorted({c.team_number for c in Camper.query.filter(Camper.team_number != None).all()})
+
+    return render_template('index.html', campers=campers, team_numbers=team_numbers)
 
 @main.route('/camper/<string:token>')
+@login_required
 def camper_detail(token):
     camper = Camper.query.filter_by(qr_token=token).first_or_404()
+
+    if current_user.team_number is not None and camper.team_number != current_user.team_number:
+        return "Unauthorized access", 403
+
     return render_template('camper_detail.html', camper=camper)
 
 @main.route('/add_camper', methods=['GET', 'POST'])
@@ -46,13 +73,21 @@ def add_camper():
         return render_template('add_camper.html')
 
     name = request.form['name']
+    team_number = request.form['team_number']
     disability = request.form['disability']
     medications = request.form['medications']
     diet = request.form['diet']
     notes = request.form['notes']
     qr_token = secrets.token_urlsafe(8)
 
-    camper = Camper(name=name, disability=disability, medications=medications, diet=diet, notes=notes, qr_token=qr_token)
+    camper = Camper(name=name, 
+                    team_number=int(team_number), 
+                    disability=disability, 
+                    medications=medications, 
+                    diet=diet, 
+                    notes=notes, 
+                    qr_token=qr_token)
+    
     db.session.add(camper)
     db.session.commit()
 
@@ -91,6 +126,10 @@ def edit_camper(id):
     camper = Camper.query.get_or_404(id)
     if request.method == 'POST':
         camper.name = request.form['name']
+        
+        if current_user.team_number is None:
+            camper.team_number = int(request.form['team_number'])
+
         camper.disability = request.form['disability']
         camper.medications = request.form['medications']
         camper.diet = request.form['diet']

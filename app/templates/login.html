@@ -1,23 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Staff Login</title>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="flex items-center justify-center h-screen bg-gray-900 text-gray-900">
-  <form method="POST" class="bg-gray-800 shadow-lg rounded p-8 w-full max-w-md space-y-4">
-    <h2 class="text-xl font-bold text-gray-200">Camp Staff Login</h2>
+<body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen px-4">
+
+  <div class="bg-gray-800 shadow-md rounded px-8 py-6 w-full max-w-sm">
+    <h2 class="text-2xl font-bold mb-4 text-center">Login</h2>
+
     {% if error %}
-      <p class="text-red-500">{{ error }}</p>
+      <p class="text-red-600 mb-2 text-center">{{ error }}</p>
     {% endif %}
-    <input type="text" name="username" placeholder="Username" class="w-full border px-3 py-2 rounded" required />
-    <input type="password" name="password" placeholder="Password" class="w-full border px-3 py-2 rounded" required />
-    <button type="submit" class="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700">Login</button>
-    <p class="text-sm mt-4 text-center text-gray-200">
-      Don't have an account? 
-      <a href="{{ url_for('auth.register') }}" class="text-blue-600 hover:underline">Register</a>
-    </p>
-  </form>
+
+    <form method="POST">
+      <label class="block mb-4">
+        <span>Username</span>
+        <input name="username" type="text" required
+               class="w-full mt-1 p-2 rounded bg-gray-900 text-gray-200 placeholder-gray-400 border border-gray-700" />
+      </label>
+
+      <label class="block mb-4">
+        <span>Password</span>
+        <input name="password" type="password" required
+               class="w-full mt-1 p-2 rounded bg-gray-900 text-gray-200 placeholder-gray-400 border border-gray-700" />
+      </label>
+
+      <button type="submit"
+              class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors duration-300">
+        Login
+      </button>
+    </form>
+
+    <!-- <p class="text-sm mt-4 text-center">
+      Don’t have an account?
+      <a href="{{ url_for('auth.register') }}" class="text-blue-400 hover:underline">Register</a>
+    </p> -->
+  </div>
+
 </body>
 </html>

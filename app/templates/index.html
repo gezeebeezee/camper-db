@@ -12,6 +12,7 @@
     }
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/alpinejs" defer></script>
 
   <style>
     /* Smooth color transition when toggling dark mode */
@@ -25,21 +26,102 @@
   <!-- Header -->
   <header class="p-6 bg-gray-100 dark:bg-gray-800 shadow-md flex justify-between items-center transition-colors duration-300">
     <h1 class="text-3xl font-extrabold tracking-tight">Camp DB</h1>
-    <div class="flex items-center space-x-3">
+
+    <!-- Desktop Buttons -->
+    <div class="hidden md:flex items-center space-x-3">
       <a href="{{ url_for('main.add_camper') }}"
         class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm shadow transition-colors duration-300">
         + Add Camper
       </a>
+      {% if current_user.team_number is none %}
+      <a href="{{ url_for('auth.manage_users') }}"
+        class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-sm shadow transition-colors duration-300">
+        Manage Users
+      </a>
+            <a href="{{ url_for('auth.register') }}"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm shadow transition-colors duration-300">
+        Register User
+      </a>
+      {% endif %}
       <a href="{{ url_for('main.logout') }}"
         class="bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded text-sm shadow transition-colors duration-300">
         Logout
       </a>
     </div>
+
+    <!-- Mobile Hamburger Menu -->
+    <div class="md:hidden relative" x-data="{ open: false }">
+      <button @click="open = !open" class="focus:outline-none">
+        <svg class="w-6 h-6 text-gray-800 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg">
+          <path x-show="!open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+
+      <!-- Dropdown Menu -->
+      <div x-show="open" @click.away="open = false"
+          class="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded shadow z-50">
+        <a href="{{ url_for('main.add_camper') }}"
+          class="block px-4 py-2 text-sm text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600">+ Add Camper</a>
+        {% if current_user.team_number is none %}
+        <a href="{{ url_for('auth.manage_users') }}"
+          class="block px-4 py-2 text-sm text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600">
+          Manage Users
+        </a>
+        {% endif %}        
+        <a href="{{ url_for('auth.register') }}"
+          class="block px-4 py-2 text-sm text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600">Register</a>
+        <a href="{{ url_for('main.logout') }}"
+          class="block px-4 py-2 text-sm text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600">Logout</a>
+      </div>
+    </div>
   </header>
 
   <!-- Main Content -->
   <main class="flex-grow p-6 w-full max-w-screen-xl mx-auto">
-    <h2 class="text-2xl font-semibold mb-6">Campers</h2>
+    <h2 class="text-2xl font-semibold mb-6">
+      {% if current_user.team_number is none %}
+        Campers
+      {% else %}
+        Team {{ current_user.team_number }}
+      {% endif %}
+    </h2>
+    <form id="filterForm" method="GET" action="{{ url_for('main.index') }}"
+          class="mb-6 flex flex-col sm:flex-row sm:justify-end sm:items-center gap-2 sm:gap-3">
+
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+        <input type="text" name="search" value="{{ request.args.get('search', '') }}"
+              placeholder="Search campers..."
+              class="sm:w-64 p-2 rounded bg-gray-900 text-gray-200 border border-gray-700 placeholder-gray-400 text-sm" />
+
+        {% if current_user.team_number is none %}
+        <select name="team_filter"
+                class="p-2 rounded bg-gray-900 text-gray-200 border border-gray-700 text-sm"
+                onchange="document.getElementById('filterForm').submit()">
+          <option value="">All Teams</option>
+          {% for num in team_numbers %}
+            <option value="{{ num }}" {% if request.args.get('team_filter') == num|string %}selected{% endif %}>
+              Team {{ num }}
+            </option>
+          {% endfor %}
+        </select>
+        {% endif %}
+
+        <button type="submit"
+                class="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white text-sm">
+          Search
+        </button>
+
+        {% if request.args.get('search') or request.args.get('team_filter') %}
+        <a href="{{ url_for('main.index') }}"
+          class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 text-white text-sm">
+          Clear
+        </a>
+        {% endif %}
+      </div>
+    </form>
+
 
   <div class="grid gap-6 grid-cols-[repeat(auto-fit,minmax(320px,1fr))]">
     {% for camper in campers %}
@@ -80,7 +162,7 @@
 
   <!-- Footer -->
   <footer class="p-6 bg-gray-100 dark:bg-gray-800 text-center text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
-    &copy; 2025 Camp DB — Built with ❤️ and Tailwind CSS
+    &copy; 2025 Camp DB — Built by Kevin Le with ❤️ and Tailwind CSS
   </footer>
 
   <!-- Dark Mode Toggle Script -->
