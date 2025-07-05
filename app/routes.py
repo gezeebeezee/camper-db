@@ -72,42 +72,46 @@ def index():
 
     return render_template('index.html', campers=campers, team_numbers=team_numbers)
 
+
 @main.route('/camper/<string:token>')
 @login_required
 def camper_detail(token):
     camper = Camper.query.filter_by(qr_token=token).first_or_404()
-    if not user_has_access_to_camper(camper):
+    if current_user.role != 'admin' and camper.team_number != current_user.team_number:
         abort(403)
     return render_template('camper_detail.html', camper=camper)
+
 
 @main.route('/add_camper', methods=['GET', 'POST'])
 @login_required
 def add_camper():
-    if not (is_admin() or is_team_leader()):
+    if current_user.role not in ['admin', 'team_leader']:
         abort(403)
 
     if request.method == 'GET':
         return render_template('add_camper.html')
 
     name = request.form['name']
-    team_number = request.form['team_number']
     disability = request.form['disability']
     medications = request.form['medications']
     diet = request.form['diet']
     notes = request.form['notes']
+    team_number = request.form['team_number']
     qr_token = secrets.token_urlsafe(8)
 
-    camper = Camper(name=name, 
-                    team_number=int(team_number), 
-                    disability=disability, 
-                    medications=medications, 
-                    diet=diet, 
-                    notes=notes, 
-                    qr_token=qr_token)
-    
+    camper = Camper(
+        name=name,
+        disability=disability,
+        medications=medications,
+        diet=diet,
+        notes=notes,
+        qr_token=qr_token,
+        team_number=team_number
+    )
     db.session.add(camper)
     db.session.commit()
 
+    # generate QR code
     base_url = os.getenv("PUBLIC_BASE_URL") or request.url_root.rstrip('/')
     qr_url = f"{base_url}{url_for('main.camper_detail', token=camper.qr_token)}"
 
@@ -137,36 +141,34 @@ def add_camper():
 
     return redirect(url_for('main.index'))
 
+
 @main.route('/edit_camper/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_camper(id):
     camper = Camper.query.get_or_404(id)
 
-    if not user_has_access_to_camper(camper):
+    # Allow if admin or if user's team matches
+    if current_user.role != 'admin' and camper.team_number != current_user.team_number:
         abort(403)
 
-    if is_team_counselor():
-        if request.method == 'POST':
-            # Only allow editing diet and notes
+    if request.method == 'POST':
+        if current_user.role == 'counselor':
+            # Counselors can only update diet and notes
             camper.diet = request.form['diet']
             camper.notes = request.form['notes']
-            db.session.commit()
-            return redirect(url_for('main.index'))
-        return render_template('edit_camper.html', camper=camper, limited=True)
+        else:
+            # Admins and team_leaders can update all fields
+            camper.name = request.form['name']
+            camper.disability = request.form['disability']
+            camper.medications = request.form['medications']
+            camper.diet = request.form['diet']
+            camper.notes = request.form['notes']
+            camper.team_number = request.form.get('team_number', camper.team_number)
 
-    # Admins and Team Leaders can edit all fields
-    if request.method == 'POST':
-        camper.name = request.form['name']
-        camper.disability = request.form['disability']
-        camper.medications = request.form['medications']
-        camper.diet = request.form['diet']
-        camper.notes = request.form['notes']
-        if is_admin():  # Only admins can change team_number
-            camper.team_number = request.form.get('team_number')
         db.session.commit()
         return redirect(url_for('main.index'))
 
-    return render_template('edit_camper.html', camper=camper, limited=False)
+    return render_template('edit_camper.html', camper=camper)
 
 
 @main.route('/qrcode/<string:token>')
@@ -178,12 +180,11 @@ def qrcode_image(token):
 @login_required
 def delete_camper(id):
     camper = Camper.query.get_or_404(id)
-    if not user_has_access_to_camper(camper):
-        abort(403)
-    if not (is_admin() or is_team_leader()):
+
+    if current_user.role not in ['admin', 'team_leader'] or camper.team_number != current_user.team_number:
         abort(403)
 
-    # Remove associated QR code image
+    # Delete QR code if exists
     qr_path = os.path.join(current_app.root_path, 'static', 'qrcodes', f'{camper.qr_token}.png')
     try:
         os.remove(qr_path)
