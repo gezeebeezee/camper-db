@@ -1,10 +1,26 @@
 
-from flask import Blueprint, render_template, redirect, url_for, request, send_from_directory, current_app
+from flask import Blueprint, render_template, redirect, url_for, request, send_from_directory, current_app, abort
 from flask_login import login_required, current_user, login_user, logout_user
 from .models import Camper, User
 import os, secrets, qrcode
 from PIL import Image, ImageDraw, ImageFont
 from . import db
+
+def is_admin():
+    return current_user.is_authenticated and current_user.role == 'admin'
+
+def is_team_leader():
+    return current_user.is_authenticated and current_user.role == 'team_leader'
+
+def is_team_counselor():
+    return current_user.is_authenticated and current_user.role == 'team_counselor'
+
+def user_has_access_to_camper(camper):
+    if is_admin():
+        return True
+    if current_user.team_number == camper.team_number:
+        return True
+    return False
 
 main = Blueprint('main', __name__)
 
@@ -60,15 +76,16 @@ def index():
 @login_required
 def camper_detail(token):
     camper = Camper.query.filter_by(qr_token=token).first_or_404()
-
-    if current_user.team_number is not None and camper.team_number != current_user.team_number:
-        return "Unauthorized access", 403
-
+    if not user_has_access_to_camper(camper):
+        abort(403)
     return render_template('camper_detail.html', camper=camper)
 
 @main.route('/add_camper', methods=['GET', 'POST'])
 @login_required
 def add_camper():
+    if not (is_admin() or is_team_leader()):
+        abort(403)
+
     if request.method == 'GET':
         return render_template('add_camper.html')
 
@@ -124,29 +141,47 @@ def add_camper():
 @login_required
 def edit_camper(id):
     camper = Camper.query.get_or_404(id)
+
+    if not user_has_access_to_camper(camper):
+        abort(403)
+
+    if is_team_counselor():
+        if request.method == 'POST':
+            # Only allow editing diet and notes
+            camper.diet = request.form['diet']
+            camper.notes = request.form['notes']
+            db.session.commit()
+            return redirect(url_for('main.index'))
+        return render_template('edit_camper.html', camper=camper, limited=True)
+
+    # Admins and Team Leaders can edit all fields
     if request.method == 'POST':
         camper.name = request.form['name']
-        
-        if current_user.team_number is None:
-            camper.team_number = int(request.form['team_number'])
-
         camper.disability = request.form['disability']
         camper.medications = request.form['medications']
         camper.diet = request.form['diet']
         camper.notes = request.form['notes']
+        if is_admin():  # Only admins can change team_number
+            camper.team_number = request.form.get('team_number')
         db.session.commit()
         return redirect(url_for('main.index'))
-    return render_template('edit_camper.html', camper=camper)
+
+    return render_template('edit_camper.html', camper=camper, limited=False)
 
 
 @main.route('/qrcode/<string:token>')
 def qrcode_image(token):
     return send_from_directory('static/qrcodes', f'{token}.png')
 
+
 @main.route('/delete_camper/<int:id>', methods=['POST'])
 @login_required
 def delete_camper(id):
     camper = Camper.query.get_or_404(id)
+    if not user_has_access_to_camper(camper):
+        abort(403)
+    if not (is_admin() or is_team_leader()):
+        abort(403)
 
     # Remove associated QR code image
     qr_path = os.path.join(current_app.root_path, 'static', 'qrcodes', f'{camper.qr_token}.png')

@@ -29,10 +29,12 @@
 
     <!-- Desktop Buttons -->
     <div class="hidden md:flex items-center space-x-3">
-      <a href="{{ url_for('main.add_camper') }}"
-        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm shadow transition-colors duration-300">
-        + Add Camper
-      </a>
+      {% if current_user.role != 'counselor' %}
+        <a href="{{ url_for('main.add_camper') }}"
+          class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm shadow transition-colors duration-300">
+          + Add Camper
+        </a>
+      {% endif %}      
       {% if current_user.team_number is none %}
       <a href="{{ url_for('auth.manage_users') }}"
         class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-sm shadow transition-colors duration-300">

@@ -18,6 +18,8 @@ class User(UserMixin, db.Model):
     team_number = db.Column(db.Integer, nullable=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
+    role = db.Column(db.String(50), nullable=False, default='counselor')  # options: admin, leader, counselor
+
 
     @property
     def password(self):
