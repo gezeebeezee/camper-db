@@ -33,6 +33,20 @@
               class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition">
         Update User
       </button>
+
+      <label class="block mb-4">
+        <span>New Password</span>
+        <input name="password" type="password"
+              class="w-full mt-1 p-2 border rounded bg-gray-900 text-gray-200 placeholder-gray-400"
+              placeholder="Leave blank to keep current password" />
+      </label>
+      <label class="block mb-4">
+        <span>Confirm New Password</span>
+        <input name="confirm_password" type="password"
+              class="w-full mt-1 p-2 border rounded bg-gray-900 text-gray-200 placeholder-gray-400"
+              placeholder="Confirm new password" />
+      </label>
+
     </form>
 
     <a href="{{ url_for('auth.manage_users') }}"

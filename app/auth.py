@@ -17,36 +17,35 @@ def manage_users():
     users = User.query.all()
     return render_template('admin_users.html', users=users)
 
-@auth.route('/admin/users/<int:user_id>/edit', methods=['GET', 'POST'])
+@auth.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def edit_user(user_id):
-    if current_user.team_number is not None:
-        return redirect(url_for('main.index'))  # Not admin
+    if not current_user.team_number is None:
+        abort(403)  # Only admins (team_number = None) can edit users
 
     user = User.query.get_or_404(user_id)
 
     if request.method == 'POST':
         username = request.form['username'].strip()
-        team_number = request.form.get('team_number')
-        password = request.form.get('password')
+        team_number = request.form['team_number'].strip()
+        password = request.form.get('password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
 
-        if not username:
-            return render_template('edit_user.html', user=user, error="Username is required.")
-
-        existing_user = User.query.filter_by(username=username).first()
-        if existing_user and existing_user.id != user.id:
-            return render_template('edit_user.html', user=user, error="Username already taken.")
-
-        user.username = username
+        # Validate team_number
         user.team_number = int(team_number) if team_number else None
+        user.username = username
 
+        # If password fields are filled out, update the password
         if password:
-            user.password = password  # uses the password setter
+            if password != confirm_password:
+                return render_template('edit_user.html', user=user, error="Passwords do not match.")
+            user.password = password  # uses the @password.setter in User model
 
         db.session.commit()
-        return redirect(url_for('auth.manage_users'))
+        return redirect(url_for('auth.admin_users'))
 
     return render_template('edit_user.html', user=user)
+
 
 @auth.route('/admin/delete_user/<int:user_id>', methods=['POST'])
 @login_required
