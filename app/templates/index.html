@@ -144,7 +144,7 @@
         </a>
 
         {% if current_user.role == 'admin' 
-          or (current_user.role == 'team_leader' and camper.team_number == current_user.team_number)
+          or (current_user.role == 'leader' and camper.team_number == current_user.team_number)
           or (current_user.role == 'counselor' and camper.team_number == current_user.team_number) %}
         <div class="flex space-x-2">
           <a href="{{ url_for('main.edit_camper', id=camper.id) }}" 
