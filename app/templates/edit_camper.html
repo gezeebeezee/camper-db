@@ -1,87 +1,73 @@
+<!-- templates/edit_camper.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Edit Camper</title>
-  <script>
-    tailwind.config = { darkMode: 'class' }
-  </script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-200 min-h-screen transition-colors duration-300 flex flex-col">
+<body class="bg-gray-900 text-gray-200 min-h-screen flex items-center justify-center px-4">
+  <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-lg">
+    <h2 class="text-2xl font-bold mb-6 text-center">Edit Camper</h2>
+    <form method="POST">
 
-  <header class="p-6 bg-gray-100 dark:bg-gray-800 shadow-md flex justify-between items-center">
-    <h1 class="text-2xl font-bold">Edit Camper</h1>
-    <a href="{{ url_for('main.index') }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">← Back</a>
-  </header>
+      <!-- Name -->
+      <label class="block mb-4">
+        <span>Name</span>
+        <input name="name" type="text" value="{{ camper.name }}"
+               class="w-full mt-1 p-2 border border-gray-700 rounded bg-gray-900 text-gray-200 placeholder-gray-400"
+               {% if current_user.role == 'counselor' %}readonly{% endif %} />
+      </label>
 
-  <main class="flex-grow p-6">
-    <form action="{{ url_for('main.edit_camper', id=camper.id) }}" method="POST"
-          class="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md p-8 space-y-6 w-full max-w-full mx-auto">
+      <!-- Team Number -->
+      <label class="block mb-4">
+        <span>Team Number</span>
+        <input name="team_number" type="number" min="1" value="{{ camper.team_number }}"
+              class="w-full mt-1 p-2 border border-gray-700 rounded bg-gray-900 text-gray-200 placeholder-gray-400"
+              {% if current_user.role in ['counselor', 'leader'] %}readonly{% endif %} />
+      </label>
 
-      <div>
-        <label for="name" class="block text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Name</label>
-        <input type="text" name="name" id="name" required value="{{ camper.name }}"
-               class="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200" />
-      </div>
+      
+      <!-- Disability -->
+      <label class="block mb-4">
+        <span>Disability</span>
+        <input name="disability" type="text" value="{{ camper.disability }}"
+               class="w-full mt-1 p-2 border border-gray-700 rounded bg-gray-900 text-gray-200 placeholder-gray-400"
+               {% if current_user.role == 'counselor' %}readonly{% endif %} />
+      </label>
 
-      {% if current_user.team_number is none %}
-        <label class="block mb-4">
-          <span>Team Number</span>
-          <input name="team_number" type="number" required min="1"
-                value="{{ camper.team_number }}"
-                class="w-full mt-1 p-2 border rounded bg-gray-900 placeholder-gray-200 text-gray-200"
-                placeholder="e.g., 5" />
-        </label>
-      {% else %}
-        <p class="mb-4"><strong>Team Number:</strong> {{ camper.team_number }}</p>
-      {% endif %}
+      <!-- Medications -->
+      <label class="block mb-4">
+        <span>Medications</span>
+        <input name="medications" type="text" value="{{ camper.medications }}"
+               class="w-full mt-1 p-2 border border-gray-700 rounded bg-gray-900 text-gray-200 placeholder-gray-400"
+               {% if current_user.role == 'counselor' %}readonly{% endif %} />
+      </label>
 
-      <div>
-        <label for="disability" class="block text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Disability</label>
-        <textarea name="disability" id="disability" rows="4"
-                  class="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 resize-y">{{ camper.disability }}</textarea>
-      </div>
+      <!-- Diet -->
+      <label class="block mb-4">
+        <span>Diet</span>
+        <input name="diet" type="text" value="{{ camper.diet }}"
+               class="w-full mt-1 p-2 border border-gray-700 rounded bg-gray-900 text-gray-200 placeholder-gray-400" />
+      </label>
 
-      <div>
-        <label for="medications" class="block text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Medications</label>
-        <textarea name="medications" id="medications" rows="4"
-                  class="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 resize-y">{{ camper.medications }}</textarea>
-      </div>
+      <!-- Notes -->
+      <label class="block mb-4">
+        <span>Notes</span>
+        <textarea name="notes" rows="4"
+                  class="w-full mt-1 p-2 border border-gray-700 rounded bg-gray-900 text-gray-200 placeholder-gray-400">{{ camper.notes }}</textarea>
+      </label>
 
-      <div>
-        <label for="diet" class="block text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Special Diet</label>
-        <textarea name="diet" id="diet" rows="4"
-                  class="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 resize-y">{{ camper.diet }}</textarea>
-      </div>
-
-      <div>
-        <label for="notes" class="block text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Notes</label>
-        <textarea name="notes" id="notes" rows="4"
-                  class="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 resize-y">{{ camper.notes }}</textarea>
-      </div>
-
-      <div class="flex flex-wrap items-center justify-between gap-4 pt-4">
+      <!-- Submit -->
+      <div class="flex justify-between">
+        <a href="{{ url_for('main.index') }}"
+           class="text-sm text-gray-400 hover:underline">← Back</a>
         <button type="submit"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded transition-colors duration-300">
+                class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded">
           Save Changes
         </button>
-
-        <div class="flex gap-2">
-          <a href="{{ url_for('static', filename='qrcodes/' + camper.qr_token + '.png') }}" target="_blank"
-             class="bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded text-sm transition-colors duration-300">
-            View QR Code
-          </a>
-
-          <a href="{{ url_for('static', filename='qrcodes/' + camper.qr_token + '.png') }}" download
-             class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded text-sm transition-colors duration-300">
-            Download QR Code
-          </a>
-        </div>
       </div>
     </form>
-  </main>
-
+  </div>
 </body>
 </html>
