@@ -152,7 +152,7 @@
             Edit
           </a>
 
-          {% if current_user.role != 'counselor' %}
+          {% if current_user.role == 'admin' %}
           <form method="POST" action="{{ url_for('main.delete_camper', id=camper.id) }}" onsubmit="return confirm('Delete this camper?');">
             <button type="submit" 
                     class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm text-white transition-colors duration-300">
