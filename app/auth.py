@@ -15,7 +15,7 @@ auth = Blueprint('auth', __name__)
 @admin_required
 def manage_users():
     users = User.query.all()
-    return render_template('admin_users.html', users=users)
+    return render_template('manage_users.html', users=users)
 
 @auth.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
 @login_required
@@ -42,7 +42,7 @@ def edit_user(user_id):
             user.password = password  # uses the @password.setter in User model
 
         db.session.commit()
-        return redirect(url_for('auth.admin_users'))
+        return redirect(url_for('auth.manage_users'))
 
     return render_template('edit_user.html', user=user)
 

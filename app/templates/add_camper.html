@@ -16,6 +16,13 @@
     <a href="{{ url_for('main.index') }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">← Back</a>
   </header>
 
+  {% if current_user.role != 'admin' %}
+    <div class="mb-4 text-center text-sm text-gray-300 bg-gray-700 p-2 rounded">
+      Adding camper to <strong>Team {{ current_user.team_number }}</strong>
+    </div>
+  {% endif %}
+
+
   <main class="flex-grow p-6">
     <form action="{{ url_for('main.add_camper') }}" method="POST"
           class="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md p-8 space-y-6 w-full max-w-full mx-auto">
