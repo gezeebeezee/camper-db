@@ -15,7 +15,7 @@ auth = Blueprint('auth', __name__)
 @admin_required
 def manage_users():
     users = User.query.all()
-    return render_template('admin_users.html', users=users)
+    return render_template('manage_users.html', users=users)
 
 @auth.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
 @login_required
@@ -42,7 +42,7 @@ def edit_user(user_id):
             user.password = password  # uses the @password.setter in User model
 
         db.session.commit()
-        return redirect(url_for('auth.admin_users'))
+        return redirect(url_for('auth.manage_users'))
 
     return render_template('edit_user.html', user=user)
 
@@ -86,37 +86,26 @@ def logout():
 @auth.route('/register', methods=['GET', 'POST'])
 @login_required
 def register():
-    # Only allow admin (team_number is None)
-    if current_user.team_number is not None:
-        return "Access denied", 403  # Or redirect with flash("Access denied")
+    if current_user.role != 'admin':
+        return redirect(url_for('main.index'))
 
     if request.method == 'POST':
         username = request.form['username'].strip().lower()
         password = request.form['password']
         confirm = request.form['confirm']
+        team_number = request.form.get('team_number', type=int)
+        role = request.form.get('role')
 
-        # Validate required fields
-        if not username or not password or not request.form.get('team_number'):
+        if not username or not password or not role or not team_number:
             return render_template('register.html', error="All fields are required.")
-
-        # Validate password confirmation
         if password != confirm:
             return render_template('register.html', error="Passwords do not match.")
-
-        # Check for duplicate username
         if User.query.filter_by(username=username).first():
             return render_template('register.html', error="Username already exists.")
+        if role not in ['admin', 'leader', 'counselor']:
+            return render_template('register.html', error="Invalid role selected.")
 
-        # Validate team number
-        try:
-            team_number = int(request.form['team_number'])
-            if team_number < 1:
-                raise ValueError
-        except (ValueError, TypeError):
-            return render_template('register.html', error="Team Number must be a positive integer.")
-
-        # Create user
-        new_user = User(username=username, team_number=team_number)
+        new_user = User(username=username, team_number=team_number, role=role)
         new_user.password = password
         db.session.add(new_user)
         db.session.commit()
