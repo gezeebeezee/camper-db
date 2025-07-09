@@ -1,9 +1,14 @@
 from app import create_app, db
+from app.models import User
 
-# Create the app instance
 app = create_app()
 
-# Run in the application context
 with app.app_context():
-    db.create_all()
-    print("✅ Database initialized.")
+    inspector = db.inspect(db.engine)
+    
+    # Check if the 'user' table already exists
+    if not inspector.has_table('user'):
+        db.create_all()
+        print("✅ Database initialized.")
+    else:
+        print("ℹ️ Database already exists. Skipping initialization.")
