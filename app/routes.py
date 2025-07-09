@@ -85,61 +85,64 @@ def camper_detail(token):
 @main.route('/add_camper', methods=['GET', 'POST'])
 @login_required
 def add_camper():
-    if current_user.role not in ['admin', 'team_leader']:
-        abort(403)
+    if request.method == 'POST':
+        name = request.form['name']
+        disability = request.form['disability']
+        medications = request.form['medications']
+        diet = request.form['diet']
+        notes = request.form['notes']
 
-    if request.method == 'GET':
-        return render_template('add_camper.html')
+        # Determine team_number based on user role
+        if current_user.role == 'admin':
+            team_number = int(request.form['team_number'])
+        else:
+            team_number = current_user.team_number  # Force leader/counselor to use their own team
 
-    name = request.form['name']
-    disability = request.form['disability']
-    medications = request.form['medications']
-    diet = request.form['diet']
-    notes = request.form['notes']
-    team_number = request.form['team_number']
-    qr_token = secrets.token_urlsafe(8)
+        qr_token = secrets.token_urlsafe(8)
+        camper = Camper(
+            name=name,
+            team_number=team_number,
+            disability=disability,
+            medications=medications,
+            diet=diet,
+            notes=notes,
+            qr_token=qr_token
+        )
 
-    camper = Camper(
-        name=name,
-        disability=disability,
-        medications=medications,
-        diet=diet,
-        notes=notes,
-        qr_token=qr_token,
-        team_number=team_number
-    )
-    db.session.add(camper)
-    db.session.commit()
+        db.session.add(camper)
+        db.session.commit()
 
-    # generate QR code
-    base_url = os.getenv("PUBLIC_BASE_URL") or request.url_root.rstrip('/')
-    qr_url = f"{base_url}{url_for('main.camper_detail', token=camper.qr_token)}"
+        # QR code generation logic (unchanged)
+        base_url = os.getenv("PUBLIC_BASE_URL") or request.url_root.rstrip('/')
+        qr_url = f"{base_url}{url_for('main.camper_detail', token=camper.qr_token)}"
 
-    path = os.path.join(current_app.root_path, 'static', 'qrcodes', f'{qr_token}.png')
-    qr_img = qrcode.make(qr_url).convert("RGB")
-    qr_width, qr_height = qr_img.size
+        path = os.path.join(current_app.root_path, 'static', 'qrcodes', f'{qr_token}.png')
+        qr_img = qrcode.make(qr_url).convert("RGB")
+        qr_width, qr_height = qr_img.size
 
-    try:
-        font = ImageFont.truetype("arial.ttf", 20)
-    except:
-        font = ImageFont.load_default()
+        try:
+            font = ImageFont.truetype("arial.ttf", 20)
+        except:
+            font = ImageFont.load_default()
 
-    dummy_img = Image.new("RGB", (qr_width, 1))
-    draw_dummy = ImageDraw.Draw(dummy_img)
-    bbox = draw_dummy.textbbox((0, 0), camper.name, font=font)
-    text_width = bbox[2] - bbox[0]
-    text_height = bbox[3] - bbox[1]
+        dummy_img = Image.new("RGB", (qr_width, 1))
+        draw_dummy = ImageDraw.Draw(dummy_img)
+        bbox = draw_dummy.textbbox((0, 0), camper.name, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
 
-    text_padding = 12
-    bottom_padding = 55
-    total_height = qr_height + text_padding + text_height + bottom_padding
-    final_img = Image.new("RGB", (qr_width, total_height), "white")
-    draw = ImageDraw.Draw(final_img)
-    final_img.paste(qr_img, (0, 0))
-    draw.text(((qr_width - text_width) // 2, qr_height + text_padding), camper.name, fill="black", font=font)
-    final_img.save(path)
+        text_padding = 12
+        bottom_padding = 55
+        total_height = qr_height + text_padding + text_height + bottom_padding
+        final_img = Image.new("RGB", (qr_width, total_height), "white")
+        draw = ImageDraw.Draw(final_img)
+        final_img.paste(qr_img, (0, 0))
+        draw.text(((qr_width - text_width) // 2, qr_height + text_padding), camper.name, fill="black", font=font)
+        final_img.save(path)
 
-    return redirect(url_for('main.index'))
+        return redirect(url_for('main.index'))
+
+    return render_template('add_camper.html')
 
 
 @main.route('/edit_camper/<int:id>', methods=['GET', 'POST'])
