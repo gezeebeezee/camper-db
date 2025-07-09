@@ -31,7 +31,3 @@ class User(UserMixin, db.Model):
 
     def check_password(self, plain_password):
         return check_password_hash(self.password_hash, plain_password)
-
-# USER_DATA = {
-#     "admin": {"password": "adminpass"}
-# }
