@@ -29,6 +29,19 @@
         <p class="text-xs text-gray-400 mt-1">Leave blank for admin access.</p>
       </div>
 
+      {% if current_user.role == 'admin' %}
+        <label class="block mb-4">
+          <span>Role</span>
+          <select name="role"
+                  class="w-full mt-1 p-2 border border-gray-700 rounded bg-gray-900 text-gray-200">
+            <option value="leader" {% if user.role == 'leader' %}selected{% endif %}>Leader</option>
+            <option value="counselor" {% if user.role == 'counselor' %}selected{% endif %}>Counselor</option>
+            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+          </select>
+        </label>
+      {% endif %}
+
+
       <button type="submit"
               class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition">
         Update User

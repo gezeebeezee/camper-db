@@ -32,6 +32,16 @@
         <p class="text-xs text-gray-400 mt-1">This field is required. Leave blank for admin access is disabled.</p>
       </label>
 
+      <label class="block mb-4">
+        <span>Role</span>
+        <select name="role" required
+                class="w-full mt-1 p-2 border rounded bg-gray-900 text-gray-200 placeholder-gray-400">
+          <option value="leader">Team Leader</option>
+          <option value="counselor">Counselor</option>
+          <option value="admin">Admin</option>
+        </select>
+      </label>      
+
       <!-- Password -->
       <label class="block">
         <span class="text-sm">Password</span>
