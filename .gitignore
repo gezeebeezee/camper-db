@@ -1,6 +1,6 @@
 venv
 camp.db
-static
+#static
 .env
 __pycache__
 app/__pycache__
