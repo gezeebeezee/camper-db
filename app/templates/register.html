@@ -1,27 +1,38 @@
-<!-- templates/register.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Create User</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 flex items-center justify-center min-h-screen px-4">
-  <div class="bg-gray-800 text-gray-200 shadow-md rounded px-8 py-6 w-full max-w-sm relative">
+  <div class="bg-gray-800 text-gray-200 shadow-md rounded px-8 py-6 w-full max-w-sm">
+    <h2 class="text-2xl font-bold mb-4 text-center">Register New User</h2>
 
-    <!-- Top Header and Back Link -->
-    <h2 class="text-2xl font-bold mb-4 text-center">Create User</h2>
-    {% if next %}
-      <a href="{{ next }}" class="absolute top-4 right-6 text-sm text-gray-400 hover:underline">← Back</a>
-    {% endif %}
-
-    <!-- Error message -->
     {% if error %}
-      <p class="text-red-600 mb-2">{{ error }}</p>
+      <p class="text-red-500 mb-4 text-sm text-center">{{ error }}</p>
     {% endif %}
+
+        <!-- Back link -->
+    <div class="mt-4 text-right">
+      <a href="{{ request.referrer or url_for('main.index') }}"
+         class="text-sm text-gray-400 hover:underline">← Back</a>
+    </div>
 
     <form method="POST">
+      <!-- Role -->
+      <label class="block mb-4">
+        <span>Role</span>
+        <select name="role" id="role" required
+                class="w-full mt-1 p-2 border border-gray-700 rounded bg-gray-900 text-gray-200">
+          <option value="">Select a role</option>
+          <option value="counselor">Counselor</option>
+          <option value="leader">Leader</option>
+          <option value="admin">Admin</option>
+        </select>
+      </label>
+
       <!-- Username -->
       <label class="block mb-4">
         <span>Username</span>
@@ -31,45 +42,54 @@
       </label>
 
       <!-- Team Number -->
-      <label class="block mb-4">
+      <label class="block mb-4" id="teamNumberGroup">
         <span>Team Number</span>
-        <input name="team_number" type="number" min="1" required
+        <input name="team_number" id="teamNumberInput" type="number" min="1"
                class="w-full mt-1 p-2 border border-gray-700 rounded bg-gray-900 text-gray-200 placeholder-gray-400"
                placeholder="e.g., 5" />
-      </label>
-
-      <!-- Role -->
-      <label class="block mb-4">
-        <span>Role</span>
-        <select name="role" required
-                class="w-full mt-1 p-2 border border-gray-700 rounded bg-gray-900 text-gray-200">
-          <option value="leader">Team Leader</option>
-          <option value="counselor">Counselor</option>
-        </select>
       </label>
 
       <!-- Password -->
       <label class="block mb-4">
         <span>Password</span>
         <input name="password" type="password" required
-               class="w-full mt-1 p-2 border border-gray-700 rounded bg-gray-900 text-gray-200 placeholder-gray-400"
-               placeholder="Enter password" />
+               class="w-full mt-1 p-2 border border-gray-700 rounded bg-gray-900 text-gray-200 placeholder-gray-400" />
       </label>
 
       <!-- Confirm Password -->
-      <label class="block mb-6">
+      <label class="block mb-4">
         <span>Confirm Password</span>
         <input name="confirm" type="password" required
-               class="w-full mt-1 p-2 border border-gray-700 rounded bg-gray-900 text-gray-200 placeholder-gray-400"
-               placeholder="Re-enter password" />
+               class="w-full mt-1 p-2 border border-gray-700 rounded bg-gray-900 text-gray-200 placeholder-gray-400" />
       </label>
 
-      <!-- Submit Button -->
+      <!-- Submit -->
       <button type="submit"
-              class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded">
-        Create User
+              class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded">
+        Register
       </button>
     </form>
   </div>
+
+  <!-- Role-based Team Number Requirement -->
+  <script>
+    const roleSelect = document.getElementById('role');
+    const teamNumberInput = document.getElementById('teamNumberInput');
+    const teamNumberGroup = document.getElementById('teamNumberGroup')
+
+    function toggleTeamNumberRequirement() {
+      const role = roleSelect.value;
+      if (role === 'admin') {
+        teamNumberInput.removeAttribute('required');
+        teamNumberInput.value = '';
+        teamNumberGroup.style.display = 'none';
+      } else {
+        teamNumberInput.setAttribute('required', 'required');
+      }
+    }
+
+    roleSelect.addEventListener('change', toggleTeamNumberRequirement);
+    window.addEventListener('DOMContentLoaded', toggleTeamNumberRequirement);
+  </script>
 </body>
 </html>
