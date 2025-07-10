@@ -50,7 +50,7 @@ with app.app_context():
             pokemon_data[pokemon_name] = pokemon_type
 
 
-        base_url = os.getenv("PUBLIC_BASE_URL") or "https://camper-db.onrender.com"
+        base_url = os.getenv("PUBLIC_BASE_URL") or os.getend("SAMPLE_DB_HOST")
         qr_folder = os.path.join(current_app.root_path, 'static', 'qrcodes')
         os.makedirs(qr_folder, exist_ok=True)
 
