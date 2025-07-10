@@ -84,31 +84,30 @@ def logout():
     return redirect(url_for('auth.login'))
 
 @auth.route('/register', methods=['GET', 'POST'])
-@login_required
 def register():
-    if current_user.role != 'admin':
-        return redirect(url_for('main.index'))
+    next_url = request.args.get('next') or url_for('main.index')
 
     if request.method == 'POST':
-        username = request.form['username'].strip().lower()
+        username = request.form['username'].strip()
         password = request.form['password']
         confirm = request.form['confirm']
-        team_number = request.form.get('team_number', type=int)
+        team_number = request.form.get('team_number')
         role = request.form.get('role')
 
-        if not username or not password or not role or not team_number:
-            return render_template('register.html', error="All fields are required.")
+        # validation logic...
+        if not username or not password or not team_number:
+            return render_template('register.html', error="All fields are required.", next=next_url)
         if password != confirm:
-            return render_template('register.html', error="Passwords do not match.")
-        if User.query.filter_by(username=username).first():
-            return render_template('register.html', error="Username already exists.")
-        if role not in ['admin', 'leader', 'counselor']:
-            return render_template('register.html', error="Invalid role selected.")
+            return render_template('register.html', error="Passwords do not match.", next=next_url)
+        if User.query.filter_by(username=username.lower()).first():
+            return render_template('register.html', error="Username already exists.", next=next_url)
 
-        new_user = User(username=username, team_number=team_number, role=role)
+        new_user = User(username=username.lower(), team_number=team_number, role=role)
         new_user.password = password
         db.session.add(new_user)
         db.session.commit()
-        return redirect(url_for('auth.manage_users'))
 
-    return render_template('register.html')
+        return redirect(next_url)
+
+    return render_template('register.html', next=next_url)
+

@@ -40,7 +40,7 @@
         class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-sm shadow transition-colors duration-300">
         Manage Users
       </a>
-            <a href="{{ url_for('auth.register') }}"
+            <a href="{{ url_for('auth.register', next=request.path) }}"
         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm shadow transition-colors duration-300">
         Register User
       </a>
@@ -72,7 +72,7 @@
           Manage Users
         </a>
         {% endif %}        
-        <a href="{{ url_for('auth.register') }}"
+        <a href="{{ url_for('auth.register', next=request.path) }}"
           class="block px-4 py-2 text-sm text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600">Register</a>
         <a href="{{ url_for('main.logout') }}"
           class="block px-4 py-2 text-sm text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600">Logout</a>

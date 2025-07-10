@@ -15,7 +15,7 @@
          class="text-indigo-400 hover:underline text-sm">← Back</a>
     </div>
 
-    <a href="{{ url_for('auth.register') }}"
+    <a href="{{ url_for('auth.register', next=request.path) }}"
        class="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm transition">
       + Create New User
     </a>
