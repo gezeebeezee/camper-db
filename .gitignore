@@ -4,4 +4,4 @@ camp.db
 .env
 __pycache__
 app/__pycache__
-fill_sample_db.py
+#fill_sample_db.py
