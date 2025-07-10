@@ -84,30 +84,47 @@ def logout():
     return redirect(url_for('auth.login'))
 
 @auth.route('/register', methods=['GET', 'POST'])
+@login_required
 def register():
-    next_url = request.args.get('next') or url_for('main.index')
-
     if request.method == 'POST':
         username = request.form['username'].strip()
         password = request.form['password']
         confirm = request.form['confirm']
-        team_number = request.form.get('team_number')
         role = request.form.get('role')
+        team_number = request.form.get('team_number')
+        next_url = request.args.get('next') or url_for('main.index')
 
-        # validation logic...
-        if not username or not password or not team_number:
+        # Basic validation
+        if not username or not password or not confirm or not role:
             return render_template('register.html', error="All fields are required.", next=next_url)
         if password != confirm:
             return render_template('register.html', error="Passwords do not match.", next=next_url)
         if User.query.filter_by(username=username.lower()).first():
             return render_template('register.html', error="Username already exists.", next=next_url)
 
-        new_user = User(username=username.lower(), team_number=team_number, role=role)
+        # Admin-only restriction
+        if role == 'admin' and current_user.role != 'admin':
+            return render_template('register.html', error="Only admins can create admin users.", next=next_url)
+
+        # Team number validation
+        if role == 'admin':
+            team_number = None
+        else:
+            try:
+                team_number = int(team_number)
+                if team_number < 1:
+                    raise ValueError
+            except (ValueError, TypeError):
+                return render_template('register.html', error="Team number must be a positive integer.", next=next_url)
+
+        # Create user
+        new_user = User(username=username.lower(), role=role, team_number=team_number)
         new_user.password = password
         db.session.add(new_user)
         db.session.commit()
 
         return redirect(next_url)
 
+    next_url = request.args.get('next') or url_for('main.index')
     return render_template('register.html', next=next_url)
 
