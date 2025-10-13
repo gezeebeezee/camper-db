@@ -4,13 +4,20 @@ from flask_login import login_required, current_user, login_user, logout_user
 from .models import Camper, User
 import os, secrets, qrcode
 from PIL import Image, ImageDraw, ImageFont
+from werkzeug.utils import secure_filename
 from . import db
+
+UPLOAD_FOLDER = os.path.join('app', 'static', 'uploads')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def is_admin():
     return current_user.is_authenticated and current_user.role == 'admin'
 
 def is_team_leader():
-    return current_user.is_authenticated and current_user.role == 'team_leader'
+    return current_user.is_authenticated and current_user.role == 'leader'
 
 def is_team_counselor():
     return current_user.is_authenticated and current_user.role == 'team_counselor'
@@ -91,6 +98,14 @@ def add_camper():
         medications = request.form['medications']
         diet = request.form['diet']
         notes = request.form['notes']
+        file = request.files.get('photo')
+
+        filename = None
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+            file.save(filepath)
 
         # Determine team_number based on user role
         if current_user.role == 'admin':
@@ -106,7 +121,8 @@ def add_camper():
             medications=medications,
             diet=diet,
             notes=notes,
-            qr_token=qr_token
+            qr_token=qr_token,
+            photo=filename
         )
 
         db.session.add(camper)
@@ -160,7 +176,7 @@ def edit_camper(id):
             camper.diet = request.form['diet']
             camper.notes = request.form['notes']
         else:
-            # Admins and team_leaders can update all fields
+            # Admins and leaders can update all fields
             camper.name = request.form['name']
             camper.disability = request.form['disability']
             camper.medications = request.form['medications']
@@ -184,7 +200,12 @@ def qrcode_image(token):
 def delete_camper(id):
     camper = Camper.query.get_or_404(id)
 
-    if current_user.role not in ['admin', 'team_leader'] or camper.team_number != current_user.team_number:
+    # Role-based access control
+    if current_user.role == 'admin':
+        pass
+    elif current_user.role == 'leader' and camper.team_number == current_user.team_number:
+        pass
+    else:
         abort(403)
 
     # Delete QR code if exists
@@ -193,6 +214,14 @@ def delete_camper(id):
         os.remove(qr_path)
     except FileNotFoundError:
         pass
+
+    # Delete photo if exists
+    if camper.photo:
+        photo_path = os.path.join(current_app.root_path, 'static', 'uploads', camper.photo)
+        try:
+            os.remove(photo_path)
+        except FileNotFoundError:
+            pass
 
     db.session.delete(camper)
     db.session.commit()
