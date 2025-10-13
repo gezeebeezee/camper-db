@@ -12,6 +12,7 @@ class Camper(db.Model):
     diet = db.Column(db.String(150))
     notes = db.Column(db.Text)
     qr_token = db.Column(db.String(100), unique=True, nullable=False)
+    photo = db.Column(db.String(200), nullable=True)
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
