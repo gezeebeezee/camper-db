@@ -23,7 +23,7 @@
 
       <div class="space-y-3">
         {% if camper.photo %}
-          <div class="mb-4 text-center">
+          <div class="w-32 h-32 mx-auto bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden border border-gray-700">
             <img src="{{ url_for('static', filename='uploads/' ~ camper.photo) }}"
                 alt="{{ camper.name }}'s photo"
                 class="rounded-lg mx-auto max-h-64 object-cover">

@@ -19,6 +19,75 @@
                {% if current_user.role == 'counselor' %}readonly{% endif %} />
       </label>
 
+      <!-- Photo -->
+      <div class="space-y-3 text-center">
+        <!-- Photo Display (uploaded or placeholder) -->
+        <div
+          class="w-32 h-32 mx-auto bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden border border-gray-700"
+        >
+          {% if camper.photo %}
+            <img
+              src="{{ url_for('static', filename='uploads/' ~ camper.photo) }}"
+              alt="{{ camper.name }}'s photo"
+              class="object-cover w-full h-full"
+            />
+          {% else %}
+            <img
+              src="{{ url_for('static', filename='images/default_profile.svg') }}"
+              alt="Default profile"
+              class="object-contain w-3/4 h-3/4 opacity-70"
+            />
+          {% endif %}
+        </div>
+
+        {% if current_user.role in ['admin', 'leader'] %}
+          <!-- Upload / Change Photo Button -->
+          <div class="flex flex-col items-center space-y-2">
+            <label
+              for="photo"
+              class="cursor-pointer px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-sm font-medium rounded-xl text-white"
+            >
+              {% if camper.photo %}
+                Change Photo
+              {% else %}
+                Upload Photo
+              {% endif %}
+            </label>
+            <input
+              id="photo"
+              name="photo"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              onchange="previewNewPhoto(event)"
+            />
+
+            <!-- Preview area -->
+            <div
+              id="photo-preview"
+              class="w-32 h-32 mx-auto bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden border border-gray-700 mt-2 hidden"
+            ></div>
+          </div>
+        {% endif %}
+      </div>
+
+      <script>
+        function previewNewPhoto(event) {
+          const preview = document.getElementById('photo-preview');
+          const file = event.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+              preview.innerHTML = `
+                <img src="${e.target.result}" class="object-cover w-full h-full" />
+              `;
+              preview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+          }
+        }
+      </script>
+
       <!-- Team Number -->
       <label class="block mb-4">
         <span>Team Number</span>
